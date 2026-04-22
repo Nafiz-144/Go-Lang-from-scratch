@@ -16,22 +16,23 @@ type User struct {
 }
 
 // Normal function that takes a User struct as parameter
-func printUserDetails(usr User){
+func printUserDetails(usr User) {
 	fmt.Println("Name:", usr.Name) // access Name field
 	fmt.Println("Age:", usr.Age)   // access Age field
 }
 
 // ******** Receiver Function (Method) ********
+// In Go, when you attach a function to a struct, it is called a method (receiver function).
 // This function is attached to User type
 // It can be called using object.method()
-func (usr User) printDetails(){
+func (usr User) printDetails() {
 	fmt.Println("Name:", usr.Name)
 	fmt.Println("Age:", usr.Age)
 }
 
 // Another method with a parameter
 // usr1 is the receiver variable (instance of User)
-func (usr1 User) call(a int){
+func (usr1 User) call(a int) {
 	fmt.Println("Name:", usr1.Name) // access Name from struct
 	fmt.Println("Value:", a)        // print passed argument (not actual Age)
 }
