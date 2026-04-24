@@ -5,6 +5,8 @@
 
 package main
 
+// package is the collection of go file
+// main means from here the program will be start
 // fmt package is used for input/output operations
 import "fmt"
 
