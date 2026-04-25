@@ -1,115 +1,132 @@
 import React, { useEffect, useState } from "react";
 
-const API = "http://localhost:8080";
-
 function App() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
-    id: "",
-    Title: "",
-    Description: "",
-    Price: "",
-    ImgUrl: "",
+    title: "",
+    discription: "",
+    price: "",
+    imgUrl: "",
   });
 
-  // GET
-  const fetchProducts = async () => {
-    const res = await fetch(`${API}/getproduct`);
-    const data = await res.json();
-    setProducts(data);
+  // Fetch products
+  const getProducts = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/getproduct");
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
-    fetchProducts();
+    getProducts();
   }, []);
 
-  // HANDLE INPUT
+  // Handle input change
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  // POST
-  const addProduct = async () => {
-    await fetch(`${API}/product`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-    fetchProducts();
-  };
+  // Submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // PUT (full update)
-  const updateProduct = async () => {
-    await fetch(`${API}/product/${form.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-    fetchProducts();
-  };
+    try {
+      const res = await fetch("http://localhost:8080/addproduct", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: form.title,
+          discription: form.discription,
+          price: parseFloat(form.price),
+          imgUrl: form.imgUrl,
+        }),
+      });
 
-  // PATCH (partial update)
-  const patchProduct = async () => {
-    await fetch(`${API}/product/${form.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Title: form.Title,
-      }),
-    });
-    fetchProducts();
-  };
+      const data = await res.json();
+      console.log(data);
 
-  // DELETE
-  const deleteProduct = async (id) => {
-    await fetch(`${API}/product/${id}`, {
-      method: "DELETE",
-    });
-    fetchProducts();
+      // Refresh list
+      getProducts();
+
+      // Clear form
+      setForm({
+        title: "",
+        discription: "",
+        price: "",
+        imgUrl: "",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Product CRUD</h2>
+      <h1>Product App</h1>
 
       {/* FORM */}
-      <input name="id" placeholder="ID" onChange={handleChange} />
-      <input name="Title" placeholder="Title" onChange={handleChange} />
-      <input
-        name="Discription"
-        placeholder="Description"
-        onChange={handleChange}
-      />
-      <input name="Price" placeholder="Price" onChange={handleChange} />
-      <input name="ImgUrl" placeholder="Image URL" onChange={handleChange} />
+      <form onSubmit={handleSubmit}>
+        <input
+          name="title"
+          placeholder="Title"
+          value={form.title}
+          onChange={handleChange}
+          required
+        />
+        <br />
 
-      <br />
-      <br />
+        <input
+          name="discription"
+          placeholder="Description"
+          value={form.discription}
+          onChange={handleChange}
+          required
+        />
+        <br />
 
-      <button onClick={addProduct}>POST</button>
-      <button onClick={updateProduct}>PUT</button>
-      <button onClick={patchProduct}>PATCH</button>
+        <input
+          name="price"
+          placeholder="Price"
+          type="number"
+          value={form.price}
+          onChange={handleChange}
+          required
+        />
+        <br />
+
+        <input
+          name="imgUrl"
+          placeholder="Image URL"
+          value={form.imgUrl}
+          onChange={handleChange}
+          required
+        />
+        <br />
+
+        <button type="submit">Add Product</button>
+      </form>
 
       <hr />
 
-      {/* LIST */}
+      {/* PRODUCT LIST */}
+      <h2>Products</h2>
       {products.map((p) => (
         <div
           key={p.id}
-          style={{ border: "1px solid gray", margin: "10px", padding: "10px" }}
+          style={{ border: "1px solid black", margin: "10px", padding: "10px" }}
         >
-          <h3>{p.Title}</h3>
-          <p>{p.Discription}</p>
-          <p>Price: {p.Price}</p>
-          <img src={p.ImgUrl} width="100" alt="" />
-          <br />
-          <button onClick={() => deleteProduct(p.id)}>DELETE</button>
+          <h3>{p.title}</h3>
+          <p>{p.discription}</p>
+          <p>Price: {p.price}</p>
+          <img src={p.imgUrl} alt="" width="150" />
         </div>
       ))}
     </div>
