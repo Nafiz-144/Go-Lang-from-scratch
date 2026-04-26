@@ -2,17 +2,21 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [products, setProducts] = useState([]);
+
   const [form, setForm] = useState({
     title: "",
-    discription: "",
+    description: "",
     price: "",
     imgUrl: "",
   });
 
-  // Fetch products
+  const [searchId, setSearchId] = useState("");
+  const [singleProduct, setSingleProduct] = useState(null);
+
+  // ================= GET ALL PRODUCTS =================
   const getProducts = async () => {
     try {
-      const res = await fetch("http://localhost:8080/getproduct");
+      const res = await fetch("http://localhost:8080/products");
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -24,7 +28,7 @@ function App() {
     getProducts();
   }, []);
 
-  // Handle input change
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -32,19 +36,19 @@ function App() {
     });
   };
 
-  // Submit form
+  // ================= ADD PRODUCT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:8080/addproduct", {
+      const res = await fetch("http://localhost:8080/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           title: form.title,
-          discription: form.discription,
+          description: form.description,
           price: parseFloat(form.price),
           imgUrl: form.imgUrl,
         }),
@@ -53,13 +57,13 @@ function App() {
       const data = await res.json();
       console.log(data);
 
-      // Refresh list
+      // refresh list
       getProducts();
 
-      // Clear form
+      // reset form
       setForm({
         title: "",
-        discription: "",
+        description: "",
         price: "",
         imgUrl: "",
       });
@@ -68,11 +72,29 @@ function App() {
     }
   };
 
+  // ================= GET PRODUCT BY ID =================
+  const getProductById = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/product/${productId}`);
+
+      if (!res.ok) {
+        throw new Error("Product not found");
+      }
+
+      const data = await res.json();
+      setSingleProduct(data);
+    } catch (err) {
+      console.error(err);
+      setSingleProduct(null);
+      alert("Product not found");
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Product App</h1>
 
-      {/* FORM */}
+      {/* ================= FORM ================= */}
       <form onSubmit={handleSubmit}>
         <input
           name="title"
@@ -84,9 +106,9 @@ function App() {
         <br />
 
         <input
-          name="discription"
+          name="description"
           placeholder="Description"
-          value={form.discription}
+          value={form.description}
           onChange={handleChange}
           required
         />
@@ -114,17 +136,52 @@ function App() {
         <button type="submit">Add Product</button>
       </form>
 
+      {/* ================= SEARCH BY ID ================= */}
       <hr />
 
-      {/* PRODUCT LIST */}
-      <h2>Products</h2>
+      <h2>Search Product by ID</h2>
+
+      <input
+        type="number"
+        placeholder="Enter Product ID"
+        value={searchId}
+        onChange={(e) => setSearchId(e.target.value)}
+      />
+
+      <button onClick={getProductById}>Search</button>
+
+      {/* SINGLE PRODUCT */}
+      {singleProduct && (
+        <div
+          style={{
+            border: "2px solid green",
+            margin: "10px",
+            padding: "10px",
+          }}
+        >
+          <h3>{singleProduct.title}</h3>
+          <p>{singleProduct.description}</p>
+          <p>Price: {singleProduct.price}</p>
+          <img src={singleProduct.imgUrl} alt="" width="150" />
+        </div>
+      )}
+
+      {/* ================= ALL PRODUCTS ================= */}
+      <hr />
+
+      <h2>All Products</h2>
+
       {products.map((p) => (
         <div
           key={p.id}
-          style={{ border: "1px solid black", margin: "10px", padding: "10px" }}
+          style={{
+            border: "1px solid black",
+            margin: "10px",
+            padding: "10px",
+          }}
         >
           <h3>{p.title}</h3>
-          <p>{p.discription}</p>
+          <p>{p.description}</p>
           <p>Price: {p.price}</p>
           <img src={p.imgUrl} alt="" width="150" />
         </div>
