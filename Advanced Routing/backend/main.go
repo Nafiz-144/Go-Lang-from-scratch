@@ -1,8 +1,6 @@
 package main
 
-import (
-	"nafiz/cmd"
-)
+import "nafiz/cmd"
 
 // ====================== MAIN FUNCTION ======================
 

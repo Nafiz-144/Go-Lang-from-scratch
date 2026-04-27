@@ -5,21 +5,24 @@ import (
 	"net/http"
 
 	"nafiz/globalrouter"
-	"nafiz/handler"
+	"nafiz/handlers"
+	"nafiz/middleware"
 )
 
 func Serve() {
 
 	mux := http.NewServeMux()
 
+	mux.Handle("GET /nafiz", middleware.Hudai(middleware.Loger(http.HandlerFunc(handlers.Test))))
+
 	// Get all products
-	mux.Handle("GET /products", http.HandlerFunc(handler.Getproduct))
+	mux.Handle("GET /products", middleware.Hudai(middleware.Loger(http.HandlerFunc(handlers.Getproduct))))
 
 	// Add product
-	mux.Handle("POST /products", http.HandlerFunc(handler.Addproduct))
+	mux.Handle("POST /products", middleware.Hudai(middleware.Loger(http.HandlerFunc(handlers.Addproduct))))
 
 	// Get product by ID
-	mux.Handle("GET /products/{productId}", http.HandlerFunc(handler.GetproductByID))
+	mux.Handle("GET /products/{productId}", middleware.Hudai(middleware.Loger(http.HandlerFunc(handlers.GetproductByID))))
 
 	fmt.Println("Server Running on:8080")
 
