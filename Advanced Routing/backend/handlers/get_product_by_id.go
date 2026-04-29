@@ -1,26 +1,43 @@
 package handlers
 
 import (
+	"encoding/json"
 	"nafiz/database"
-	"nafiz/utill"
 	"net/http"
 	"strconv"
 )
 
+// GetproductByID → নির্দিষ্ট product return করে
+// URL: /products/{productId}
+
 func GetproductByID(w http.ResponseWriter, r *http.Request) {
 
-	productID := r.PathValue("productId")
-	pId, err := strconv.Atoi(productID)
+	w.Header().Set("Content-Type", "application/json")
+
+	// ------------------ GET ID FROM URL ------------------
+	// URL থেকে productId বের করা
+	idParam := r.PathValue("productId")
+
+	// string → int convert
+	id, err := strconv.Atoi(idParam)
+
 	if err != nil {
-		http.Error(w, "Please give me a valid Product id", 400)
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
 		return
 	}
+
+	// ------------------ SEARCH PRODUCT ------------------
 	for _, product := range database.ProductList {
-		if product.ID == pId {
-			utill.SendData(w, product, 200)
+
+		// যদি ID match করে
+		if product.ID == id {
+
+			// product return
+			json.NewEncoder(w).Encode(product)
 			return
 		}
 	}
-	utill.SendData(w, "Data not found", 400)
 
+	// ------------------ NOT FOUND ------------------
+	http.Error(w, "Product not found", http.StatusNotFound)
 }

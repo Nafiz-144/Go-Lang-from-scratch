@@ -2,34 +2,40 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"nafiz/database"
-
-	"nafiz/utill"
 	"net/http"
 )
 
-// POST /addproduct
-// Adds a new product to ProductList
+// Addproduct → নতুন product add করে
+// URL: POST /products
+
 func Addproduct(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
+
+	// ------------------ READ REQUEST BODY ------------------
 	var newProduct database.Product
 
-	// Decode JSON request body into struct
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newProduct)
+	// client থেকে আসা JSON → Go struct এ convert
+	err := json.NewDecoder(r.Body).Decode(&newProduct)
+
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Please enter a valid JSON", 400)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	// Auto-generate ID
-	newProduct.ID = len(database.ProductList) + 1
+	// ------------------ SIMPLE ID GENERATION ------------------
+	// last product এর ID + 1
+	if len(database.ProductList) > 0 {
+		newProduct.ID = database.ProductList[len(database.ProductList)-1].ID + 1
+	} else {
+		newProduct.ID = 1
+	}
 
-	// Add product to slice
+	// ------------------ ADD TO DATABASE ------------------
 	database.ProductList = append(database.ProductList, newProduct)
 
-	// Send response
-	utill.SendData(w, newProduct, 201)
+	// ------------------ RESPONSE ------------------
+	w.WriteHeader(http.StatusCreated) // 201
+	json.NewEncoder(w).Encode(newProduct)
 }
