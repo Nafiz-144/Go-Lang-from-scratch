@@ -20,16 +20,12 @@ func Addproduct(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&newProduct)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Please enter a valid JSON", 400)
+		http.Error(w, "Please enter a valid json", 400)
 		return
 	}
 
-	// Auto-generate ID
-	newProduct.ID = len(database.ProductList) + 1
-
-	// Add product to slice
-	database.ProductList = append(database.ProductList, newProduct)
+	createdProduct := database.Store(newProduct)
 
 	// Send response
-	utill.SendData(w, newProduct, 201)
+	utill.SendData(w, createdProduct, 201)
 }

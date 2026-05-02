@@ -1,31 +1,14 @@
 package cmd
 
 import (
-	"fmt"
-	"net/http"
-
-	"nafiz/middleware"
+	"nafiz/config"
+	"nafiz/rest"
 )
 
 func Serve() {
 
-	manager := middleware.NewManager()
+	rest.Start(config.GetConfig())
 
-	mux := http.NewServeMux()
-
-	// warppedMux := manager.WrapMux(mux, middleware.Loger,
-	// 	middleware.Hudai, middleware.CorsWithPreflight)
-
-	manager.Use(middleware.Preflight, middleware.Cors, middleware.Loger)
-
-	WrapMux := manager.WrapMux(mux)
-	initRoutes(mux, manager)
-	fmt.Println("Server Running on:8080")
-
-	err := http.ListenAndServe(":8080", WrapMux)
-	if err != nil {
-		fmt.Println("Error Starting the Server:", err)
-	}
 }
 
 /*
