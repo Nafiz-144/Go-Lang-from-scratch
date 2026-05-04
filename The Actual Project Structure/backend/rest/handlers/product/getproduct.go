@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"nafiz/database"
@@ -7,6 +7,6 @@ import (
 	"net/http"
 )
 
-func Getproducts(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Getproducts(w http.ResponseWriter, r *http.Request) {
 	utill.SendData(w, database.List(), 200)
 }

@@ -23,7 +23,7 @@ func printUserDetails(usr User) {
 	fmt.Println("Age:", usr.Age)   // access Age field
 }
 
-// ******** Receiver Function (Method) ********
+// ******** Receiver Function (Method/behavior) ********
 // In Go, when you attach a function to a struct, it is called a method (receiver function).
 // This function is attached to User type
 // It can be called using object.method()

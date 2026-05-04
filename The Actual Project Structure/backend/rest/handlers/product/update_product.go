@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 
 // GET /getproduct
 // Returns all products as JSON
-func Updateproduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Updateproduct(w http.ResponseWriter, r *http.Request) {
 
 	productID := r.PathValue("id")
 	pId, err := strconv.Atoi(productID)

@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"nafiz/database"
@@ -9,7 +9,7 @@ import (
 
 // GET /getproduct
 // Returns all products as JSON
-func Deleteproduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Deleteproduct(w http.ResponseWriter, r *http.Request) {
 
 	productID := r.PathValue("id")
 	pId, err := strconv.Atoi(productID)

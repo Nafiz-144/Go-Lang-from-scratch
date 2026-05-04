@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"nafiz/database"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func Getproduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Getproduct(w http.ResponseWriter, r *http.Request) {
 
 	productID := r.PathValue("id")
 	pId, err := strconv.Atoi(productID)

@@ -1,9 +1,10 @@
-package handlers
+package user
 
 import (
 	"encoding/json"
 	"fmt"
 
+	"nafiz/config"
 	"nafiz/database"
 	"nafiz/utill"
 	"net/http"
@@ -14,11 +15,10 @@ type ReqLogin struct {
 	Password string `json:"password"`
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (*Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var reqLogin ReqLogin
 
-	// Decode JSON request body into struct
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqLogin)
 	if err != nil {
@@ -33,5 +33,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utill.SendData(w, usr, http.StatusCreated)
+	cnf := config.GetConfig()
+	accessToken, err := utill.CreateJwt(cnf.JwtSecretKey, utill.Payload{
+		Sub:       usr.ID,
+		FirstName: usr.FirstName,
+		LastName:  usr.LastName,
+		Email:     usr.Email,
+	})
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	utill.SendData(w, accessToken, http.StatusCreated)
 }
