@@ -1,14 +1,21 @@
 package product
 
-import middleware "nafiz/rest/middlewares"
+import (
+	"nafiz/repo"
+	middleware "nafiz/rest/middlewares"
+)
 
 type Handler struct {
 	middlewares *middleware.Misddlewares
+	productRepo repo.ProductRepo
 }
 
-func NewHandler(middlewares *middleware.Misddlewares) *Handler {
+func NewHandler(middlewares *middleware.Misddlewares,
+	productRepo repo.ProductRepo,
+) *Handler {
 	return &Handler{
 		middlewares: middlewares,
+		productRepo: productRepo,
 	}
 
 }

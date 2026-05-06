@@ -1,12 +1,17 @@
 package product
 
 import (
-	"nafiz/database"
-
 	"nafiz/utill"
 	"net/http"
 )
 
 func (h *Handler) Getproducts(w http.ResponseWriter, r *http.Request) {
-	utill.SendData(w, database.List(), 200)
+
+	productList, err := h.productRepo.List()
+	if err != nil {
+		utill.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	utill.SendData(w, http.StatusOK, productList)
 }

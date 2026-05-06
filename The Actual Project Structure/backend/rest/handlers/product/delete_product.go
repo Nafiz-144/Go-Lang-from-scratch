@@ -1,28 +1,29 @@
 package product
 
 import (
-	"nafiz/database"
+	"fmt"
 	"nafiz/utill"
 	"net/http"
 	"strconv"
 )
 
-// GET /getproduct
-// Returns all products as JSON
 func (h *Handler) Deleteproduct(w http.ResponseWriter, r *http.Request) {
 
 	productID := r.PathValue("id")
 	pId, err := strconv.Atoi(productID)
 	if err != nil {
-		http.Error(w, "Please give me a valid Product id", 400)
+		utill.SendError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
 	}
 
-	database.Delete(pId)
-	utill.SendData(w, "Successfully Deleted Product", 201)
+	err = h.productRepo.Delete(pId)
+	if err != nil {
+		fmt.Println("Error:", err)
+		utill.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+
+	}
+
+	utill.SendData(w, http.StatusOK, "Successfully Deleted Product")
 
 }
-
-// `struct
-// pId
-// jo conver`

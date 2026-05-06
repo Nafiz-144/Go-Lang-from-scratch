@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"nafiz/config"
-	"nafiz/database"
 	"nafiz/utill"
 	"net/http"
 )
@@ -15,26 +13,25 @@ type ReqLogin struct {
 	Password string `json:"password"`
 }
 
-func (*Handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
-	var reqLogin ReqLogin
+	var req ReqLogin
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&reqLogin)
+	err := decoder.Decode(&req)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Invalid Request Data", http.StatusBadRequest)
+		utill.SendError(w, http.StatusBadRequest, "Invalid Request Body")
 		return
 	}
-	usr := database.Find(reqLogin.Email, reqLogin.Password)
+	usr, err := h.userRepo.Find(req.Email, req.Password)
 
-	if usr == nil {
-		http.Error(w, "Invalid Credentials", http.StatusBadRequest)
+	if err != nil {
+		utill.SendError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
-	cnf := config.GetConfig()
-	accessToken, err := utill.CreateJwt(cnf.JwtSecretKey, utill.Payload{
+	accessToken, err := utill.CreateJwt(h.cnf.JwtSecretKey, utill.Payload{
 		Sub:       usr.ID,
 		FirstName: usr.FirstName,
 		LastName:  usr.LastName,
@@ -45,5 +42,5 @@ func (*Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utill.SendData(w, accessToken, http.StatusCreated)
+	utill.SendData(w, http.StatusCreated, accessToken)
 }

@@ -3,11 +3,18 @@ package product
 import (
 	"encoding/json"
 	"fmt"
-	"nafiz/database"
+	"nafiz/repo"
 	"nafiz/utill"
 	"net/http"
 	"strconv"
 )
+
+type ReqUpdateproduct struct {
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	ImgUrl      string  `json:"imgUrl"`
+}
 
 // GET /getproduct
 // Returns all products as JSON
@@ -16,24 +23,33 @@ func (h *Handler) Updateproduct(w http.ResponseWriter, r *http.Request) {
 	productID := r.PathValue("id")
 	pId, err := strconv.Atoi(productID)
 	if err != nil {
-		http.Error(w, "Please give me a valid Product id", 400)
+		utill.SendError(w, http.StatusBadRequest, "Inavalid product ID ")
+
 		return
 	}
 
-	var newProduct database.Product
+	var req ReqUpdateproduct
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&newProduct)
+	err = decoder.Decode(&req)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Please enter a valid JSON", 400)
+		utill.SendError(w, http.StatusBadRequest, "Invalid Request Body")
+
 		return
 	}
-	newProduct.ID = pId
-	database.Update(newProduct)
-	utill.SendData(w, "Successfully Update Product", 201)
+	_, err = h.productRepo.Update(repo.Product{
+		ID:          pId,
+		Title:       req.Title,
+		Description: req.Description,
+		Price:       req.Price,
+		ImgUrl:      req.ImgUrl,
+	})
+	if err != nil {
+
+		utill.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	utill.SendData(w, http.StatusOK, "Successfully Update Product")
 
 }
-
-// `struct
-// pId
-// jo conver`
