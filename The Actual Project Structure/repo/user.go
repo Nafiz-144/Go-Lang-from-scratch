@@ -1,0 +1,68 @@
+package repo
+
+import (
+	"fmt"
+	"nafiz/domain"
+	"nafiz/user"
+
+	"github.com/jmoiron/sqlx"
+)
+
+type UserRepo interface {
+	user.UserRepo
+}
+
+type userRepo struct {
+	db *sqlx.DB
+}
+
+func NewUserRepo(db *sqlx.DB) UserRepo {
+	return &userRepo{
+		db: db,
+	}
+}
+
+func (r userRepo) Create(user domain.User) (*domain.User, error) {
+	// Insert query
+	query := `
+    INSERT INTO users (first_name, last_name, email, password, is_shop_owner)
+    VALUES (:first_name, :last_name, :email, :password, :is_shop_owner)
+    RETURNING id
+`
+
+	// Execute named query
+	var userID int
+	rows, err := r.db.NamedQuery(query, user)
+	if err != nil {
+		fmt.Println()
+		return nil, err
+	}
+
+	if rows.Next() {
+		rows.Scan(&userID)
+	}
+
+	user.ID = userID
+	return &user, nil
+}
+func (r *userRepo) Find(email, pass string) (*domain.User, error) {
+	var user domain.User
+
+	query := `
+		SELECT id, first_name, last_name, email, password, is_shop_owner
+		FROM users
+		WHERE email = $1 AND password = $2
+		LIMIT 1;
+	`
+
+	err := r.db.Get(&user, query, email, pass)
+	if err != nil {
+		// no row found
+		if err.Error() == "sql: no rows in result set" {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
