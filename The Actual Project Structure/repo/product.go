@@ -75,15 +75,20 @@ where id=$1
 	return &prd, nil
 
 }
-func (r *productRepo) List() ([]*domain.Product, error) {
+
+func (r *productRepo) List(page, limit int64) ([]*domain.Product, error) {
 	var prdList []*domain.Product
 
+	offset := ((page - 1) * limit) + 1
 	query := `
      SELECT
      id,title,description,price,img_url from products
-    `
+    LIMIT $1
+	OFFSET $2;
+	
+	 `
 
-	err := r.db.Select(&prdList, query)
+	err := r.db.Select(&prdList, query, limit, offset)
 	if err != nil {
 
 		return nil, err
@@ -119,13 +124,17 @@ func (r *productRepo) Update(p domain.Product) (*domain.Product, error) {
 	return &p, nil
 }
 
-// func generateInitialProduct(r *productRepo) {
-// 	Pr1 := &Product{
-// 		ID:          1,
-// 		Title:       "Mango",
-// 		Description: "I love Mango, That's an interesting fruit",
-// 		Price:       50,
-// 		ImgUrl:      "https://afrisunorchards.com/wp-content/uploads/2023/12/mangoes-495x400.jpg",
-// 	}
-// 	r.productList = append(r.productList, Pr1)
-// }
+func (r *productRepo) Count() (int64, error) {
+	query := `
+		SELECT COUNT(*)
+		FROM products
+	`
+
+	var count int
+	err := r.db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return int64(count), nil
+}

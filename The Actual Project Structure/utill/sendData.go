@@ -5,9 +5,6 @@ import (
 	"net/http"
 )
 
-// ====================== HELPER FUNCTION ======================
-
-// Sends JSON response with status code
 func SendData(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.WriteHeader(statusCode)
 	encoder := json.NewEncoder(w)
